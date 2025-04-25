@@ -1,0 +1,28 @@
+[
+    {
+        "file": null,
+        "image": {
+            "name": "the_original_filename_of_the_file_that_was_uploaded.suffix"
+        },
+        "value": null,
+        "interface": {
+            "slug": "color-fundus-image",
+            "kind": "Image",
+            "super_kind": "Image",
+            "relative_path": "images/color-fundus",
+            "example_value": null
+        }
+    },
+    {
+        "file": null,
+        "image": null,
+        "value": 42,
+        "interface": {
+            "slug": "age-in-months",
+            "kind": "Integer",
+            "super_kind": "Value",
+            "relative_path": "age-in-months.json",
+            "example_value": 42
+        }
+    }
+]

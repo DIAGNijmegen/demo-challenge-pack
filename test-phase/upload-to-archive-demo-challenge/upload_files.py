@@ -39,29 +39,47 @@ API_TOKEN = "REPLACE-ME-WITH-YOUR-TOKEN"
 
 ARCHIVE_SLUG = "demo-challenge"
 
+
+EXPECTED_CASE_FILES_FOR_INTERFACE_0 = [
+    {
+        "color-fundus-image": "test-phase/upload-to-archive-demo-challenge/interface_0/case_0/images/color-fundus",
+        "age-in-months": "test-phase/upload-to-archive-demo-challenge/interface_0/case_0/age-in-months.json",
+    },
+    {
+        "color-fundus-image": "test-phase/upload-to-archive-demo-challenge/interface_0/case_1/images/color-fundus",
+        "age-in-months": "test-phase/upload-to-archive-demo-challenge/interface_0/case_1/age-in-months.json",
+    },
+    {
+        "color-fundus-image": "test-phase/upload-to-archive-demo-challenge/interface_0/case_2/images/color-fundus",
+        "age-in-months": "test-phase/upload-to-archive-demo-challenge/interface_0/case_2/age-in-months.json",
+    },
+]
+
+
 EXPECTED_CASES = [
-    # for: color-fundus-image, age-in-months
-    ["case0/file0.example", "case0/file1.example"],
-    ["case1/file0.example", "case1/file1.example"],
-    ["case2/file0.example", "case2/file1.example"],
+    *EXPECTED_CASE_FILES_FOR_INTERFACE_0,
+]
+
+EXPECTED_SOCKETS = [
+    {
+        "color-fundus-image",
+        "age-in-months",
+    },
 ]
 
 
 def main():
-    check_files()
+    pre_flight_check()
     upload_files()
     return 0
 
 
-def check_files():
-    # Perform a sanity-check to see if we have all the files we expect
+def pre_flight_check():
+    # Perform a sanity-check to see if everything is in place
+    # before we start uploading files to the archive
+
     for case in EXPECTED_CASES:
-        for file in case:
-            path = Path(file)
-            if not path.exists():
-                raise RuntimeError(
-                    f"Could not find {path.absolute()}, check that you're running in the right directory"
-                )
+        prepare_contents(case)
 
 
 def upload_files():
@@ -74,19 +92,35 @@ def upload_files():
     for case in EXPECTED_CASES:
         print(f"Uploading {case} to {archive['title']}")
 
-        content = map_case_content_to_interfaces(case)
+        contents = prepare_contents(case)
         archive_item = client.archive_items.create(archive=archive_api_url, values=[])
         client.update_archive_item(
             archive_item_pk=archive_item["pk"],
-            values=content,
+            values=contents,
         )
 
 
-def map_case_content_to_interfaces(case):
-    return {
-        "color-fundus-image": [Path(case[0])],
-        "age-in-months": json.loads(Path(case[1]).read_text()),
-    }
+def prepare_contents(case):
+    contents = {}
+
+    socket_set = set(case.keys())
+    assert (
+        socket_set in EXPECTED_SOCKETS
+    ), f"The input socket set {socket_set} is unexpected and probably incorrect!"
+
+    for slug, file in case.items():
+        file_path = Path(file)
+        assert file_path.exists(), f"File {file} does not exist"
+
+        if slug == "color-fundus-image":
+            contents[slug] = list(file_path.rglob("*"))
+            assert contents[slug], f"No files found in {slug}"
+        elif slug == "age-in-months":
+            contents[slug] = json.loads(file_path.read_text())
+        else:
+            raise RuntimeError(f"Unexpected socket: {key}")
+
+    return contents
 
 
 if __name__ == "__main__":

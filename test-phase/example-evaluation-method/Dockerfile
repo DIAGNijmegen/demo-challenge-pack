@@ -9,7 +9,7 @@ USER user
 WORKDIR /opt/app
 
 COPY --chown=user:user requirements.txt /opt/app/
-COPY --chown=user:user ground_truth /opt/app/ground_truth
+COPY --chown=user:user resources /opt/app/resources
 
 # You can add any Python dependencies to requirements.txt
 RUN python -m pip install \

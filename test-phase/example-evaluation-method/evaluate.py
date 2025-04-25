@@ -32,6 +32,7 @@ import json
 from glob import glob
 import SimpleITK
 import re
+
 import random
 from statistics import mean
 from pathlib import Path
@@ -40,10 +41,50 @@ from helpers import run_prediction_processing, tree
 
 INPUT_DIRECTORY = Path("/input")
 OUTPUT_DIRECTORY = Path("/output")
-GROUND_TRUTH_DIRECTORY = Path("ground_truth")
+
+
+def main():
+    print_inputs()
+
+    metrics = {}
+    predictions = read_predictions()
+
+    # We now process each algorithm job for this submission
+    # Note that the jobs are not in any specific order!
+    # We work that out from predictions.json
+
+    # Use concurrent workers to process the predictions more efficiently
+    metrics["results"] = run_prediction_processing(fn=process, predictions=predictions)
+
+    # We have the results per prediction, we can aggregate the results and
+    # generate an overall score(s) for this submission
+    if metrics["results"]:
+        metrics["aggregates"] = {
+            "my_metric": mean(result["my_metric"] for result in metrics["results"])
+        }
+
+    # Make sure to save the metrics
+    write_metrics(metrics=metrics)
+
+    return 0
 
 
 def process(job):
+    # The key is a tuple of the slugs of the input sockets
+    interface_key = get_interface_key(job)
+
+    # Lookup the handler for this particular set of sockets (i.e. the interface)
+    handler = {
+        ("age-in-months", "color-fundus-image"): process_interface_0,
+    }[interface_key]
+
+    # Call the handler
+    return handler(job)
+
+
+def process_interface_0(
+    job,
+):
     """Processes a single algorithm job, looking at the outputs"""
     report = "Processing:\n"
     report += pformat(job)
@@ -57,7 +98,7 @@ def process(job):
     )
 
     # Secondly, read the results
-    result_binary_vessel_segmentation = load_image_file(
+    result_binary_vessel_segmentation = load_image_file_as_array(
         location=location_binary_vessel_segmentation,
     )
 
@@ -68,9 +109,23 @@ def process(job):
     )
 
     # Fourthly, load your ground truth
-    # Include it in your evaluation container by placing it in ground_truth/
-    with open(GROUND_TRUTH_DIRECTORY / "some_resource.txt", "r") as f:
-        report += f.read()
+    # Include your ground truth in one of two ways:
+
+    # Option 1: include it in your Docker-container image under resources/
+    resource_dir = Path("/opt/app/resources")
+    with open(resource_dir / "some_resource.txt", "r") as f:
+        truth = f.read()
+    report += truth
+
+    # Option 2: upload it as a tarball to Grand Challenge
+    # Go to phase settings and upload it under Ground Truths. Your ground truth will be extracted to `ground_truth_dir` at runtime.
+    ground_truth_dir = Path("/opt/ml/input/data/ground_truth")
+    with open(
+        ground_truth_dir / "a_tarball_subdirectory" / "some_tarball_resource.txt", "r"
+    ) as f:
+        truth = f.read()
+    report += truth
+
     print(report)
 
     # TODO: compare the results to your ground truth and compute some metrics
@@ -79,31 +134,6 @@ def process(job):
     return {
         "my_metric": random.choice([1, 0]),
     }
-
-
-def main():
-    print_inputs()
-
-    metrics = {}
-    predictions = read_predictions()
-
-    # We now process each algorithm job for this submission
-    # Note that the jobs are not in any order!
-    # We work that out from predictions.json
-
-    # Use concurrent workers to process the predictions more efficiently
-    metrics["results"] = run_prediction_processing(fn=process, predictions=predictions)
-
-    # We have the results per prediction, we can aggregate the results and
-    # generate an overall score(s) for this submission
-    metrics["aggregates"] = {
-        "my_metric": mean(result["my_metric"] for result in metrics["results"])
-    }
-
-    # Make sure to save the metrics
-    write_metrics(metrics=metrics)
-
-    return 0
 
 
 def print_inputs():
@@ -116,8 +146,13 @@ def print_inputs():
 
 def read_predictions():
     # The prediction file tells us the location of the users' predictions
-    with open(INPUT_DIRECTORY / "predictions.json") as f:
-        return json.loads(f.read())
+    return load_json_file(location=INPUT_DIRECTORY / "predictions.json")
+
+
+def get_interface_key(job):
+    # Each interface has a unique key that is the set of socket slugs given as input
+    socket_slugs = [sv["interface"]["slug"] for sv in job["inputs"]]
+    return tuple(sorted(socket_slugs))
 
 
 def get_image_name(*, values, slug):
@@ -144,7 +179,13 @@ def get_file_location(*, job_pk, values, slug):
     return INPUT_DIRECTORY / job_pk / "output" / relative_path
 
 
-def load_image_file(*, location):
+def load_json_file(*, location):
+    # Reads a json file
+    with open(location) as f:
+        return json.loads(f.read())
+
+
+def load_image_file_as_array(*, location):
     # Use SimpleITK to read a file
     input_files = glob(str(location / "*.tiff")) + glob(str(location / "*.mha"))
     result = SimpleITK.ReadImage(input_files[0])
@@ -155,8 +196,13 @@ def load_image_file(*, location):
 
 def write_metrics(*, metrics):
     # Write a json document used for ranking results on the leaderboard
-    with open(OUTPUT_DIRECTORY / "metrics.json", "w") as f:
-        f.write(json.dumps(metrics, indent=4))
+    write_json_file(location=OUTPUT_DIRECTORY / "metrics.json", content=metrics)
+
+
+def write_json_file(*, location, content):
+    # Writes a json file
+    with open(location, "w") as f:
+        f.write(json.dumps(content, indent=4))
 
 
 if __name__ == "__main__":

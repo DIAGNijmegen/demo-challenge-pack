@@ -127,9 +127,12 @@ def _pool_worker(*, fn, predictions, max_workers, results, errors):
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         try:
             # Submit the processing tasks of the predictions
-            futures = [executor.submit(fn, prediction) for prediction in predictions]
+            futures = [
+                executor.submit(fn, prediction) for prediction in predictions
+            ]
             future_to_predictions = {
-                future: item for future, item in zip(futures, predictions, strict=True)
+                future: item
+                for future, item in zip(futures, predictions, strict=True)
             }
 
             for future in as_completed(future_to_predictions):
@@ -140,7 +143,9 @@ def _pool_worker(*, fn, predictions, max_workers, results, errors):
 
                 if error:
                     # Cannot pickle tracestacks, so format it here
-                    tb_exception = traceback.TracebackException.from_exception(error)
+                    tb_exception = traceback.TracebackException.from_exception(
+                        error
+                    )
                     errors[prediction_pk] = "".join(tb_exception.format())
 
                     if not caught_exception:  # Hard stop
