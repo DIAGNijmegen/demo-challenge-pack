@@ -1,0 +1,173 @@
+[
+    {
+        "pk": "34ad4c51-9428-4c3f-b906-a81d610264de",
+        "inputs": [
+            {
+                "socket": {
+                    "slug": "color-fundus-image",
+                    "relative_path": "images/color-fundus",
+                    "is_image_kind": true,
+                    "is_panimg_kind": true,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": false,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": {
+                    "name": "the_original_filename_of_the_file_that_was_uploaded_or_image_set"
+                },
+                "value": null
+            },
+            {
+                "socket": {
+                    "slug": "age-in-months",
+                    "relative_path": "age-in-months.json",
+                    "example_value": 42,
+                    "is_image_kind": false,
+                    "is_panimg_kind": false,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": true,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": null,
+                "value": 42
+            }
+        ],
+        "outputs": [
+            {
+                "socket": {
+                    "slug": "binary-vessel-segmentation",
+                    "relative_path": "images/binary-vessel-segmentation",
+                    "is_image_kind": true,
+                    "is_panimg_kind": true,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": false,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": {
+                    "name": "the_original_filename_of_the_file_that_was_uploaded_or_image_set"
+                },
+                "value": null
+            }
+        ],
+        "exec_duration": "PT22M17S",
+        "invoke_duration": null,
+        "status": "Succeeded"
+    },
+    {
+        "pk": "76f93b03-ae11-40a8-94fb-63eee5307141",
+        "inputs": [
+            {
+                "socket": {
+                    "slug": "color-fundus-image",
+                    "relative_path": "images/color-fundus",
+                    "is_image_kind": true,
+                    "is_panimg_kind": true,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": false,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": {
+                    "name": "the_original_filename_of_the_file_that_was_uploaded_or_image_set"
+                },
+                "value": null
+            },
+            {
+                "socket": {
+                    "slug": "age-in-months",
+                    "relative_path": "age-in-months.json",
+                    "example_value": 42,
+                    "is_image_kind": false,
+                    "is_panimg_kind": false,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": true,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": null,
+                "value": 42
+            }
+        ],
+        "outputs": [
+            {
+                "socket": {
+                    "slug": "binary-vessel-segmentation",
+                    "relative_path": "images/binary-vessel-segmentation",
+                    "is_image_kind": true,
+                    "is_panimg_kind": true,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": false,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": {
+                    "name": "the_original_filename_of_the_file_that_was_uploaded_or_image_set"
+                },
+                "value": null
+            }
+        ],
+        "exec_duration": "PT22M17S",
+        "invoke_duration": null,
+        "status": "Succeeded"
+    },
+    {
+        "pk": "28a2137a-7d77-4635-92b6-e2bdf0b60eea",
+        "inputs": [
+            {
+                "socket": {
+                    "slug": "color-fundus-image",
+                    "relative_path": "images/color-fundus",
+                    "is_image_kind": true,
+                    "is_panimg_kind": true,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": false,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": {
+                    "name": "the_original_filename_of_the_file_that_was_uploaded_or_image_set"
+                },
+                "value": null
+            },
+            {
+                "socket": {
+                    "slug": "age-in-months",
+                    "relative_path": "age-in-months.json",
+                    "example_value": 42,
+                    "is_image_kind": false,
+                    "is_panimg_kind": false,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": true,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": null,
+                "value": 42
+            }
+        ],
+        "outputs": [
+            {
+                "socket": {
+                    "slug": "binary-vessel-segmentation",
+                    "relative_path": "images/binary-vessel-segmentation",
+                    "is_image_kind": true,
+                    "is_panimg_kind": true,
+                    "is_dicom_image_kind": false,
+                    "is_json_kind": false,
+                    "is_file_kind": false
+                },
+                "file": null,
+                "image": {
+                    "name": "the_original_filename_of_the_file_that_was_uploaded_or_image_set"
+                },
+                "value": null
+            }
+        ],
+        "exec_duration": "PT22M17S",
+        "invoke_duration": null,
+        "status": "Succeeded"
+    }
+]

@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+
+SimpleITK
+
+
+numpy
+
+psutil

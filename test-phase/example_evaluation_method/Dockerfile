@@ -1,0 +1,41 @@
+FROM --platform=linux/amd64 docker.io/library/python:3.14-slim AS example-evaluation-amd64
+
+# Ensures that Python output to stdout/stderr is not buffered: prevents missing information when terminating
+ENV PYTHONUNBUFFERED=1
+
+
+
+RUN groupadd -r user && useradd -m --no-log-init -r -g user user
+USER user
+
+WORKDIR /opt/app
+
+# Create a virtualenv that inherits the system-site-packages
+# This avoids PEP 668 externally-managed-environment errors on newer Python images
+# --without-pip is used for consistency; pip is inherited from system-site-packages.
+RUN python -m venv --system-site-packages --without-pip /home/user/venv
+# "Activate" the venv for all subsequent RUN, CMD, and ENTRYPOINT instructions.
+# Each RUN is a fresh shell so source-based activation doesn't persist between layers.
+ENV PATH="/home/user/venv/bin:$PATH"
+
+COPY --chown=user:user requirements.txt /opt/app/
+
+# You can add any Python dependencies to requirements.txt
+RUN python -m pip install \
+    --no-cache-dir \
+    --no-color \
+    --requirement /opt/app/requirements.txt
+
+COPY --chown=user:user app.py /opt/app/
+COPY --chown=user:user helpers.py /opt/app/
+COPY --chown=user:user evaluate.py /opt/app/
+
+# Setting this will limit the number of workers used by the evaluate.py
+ENV GRAND_CHALLENGE_MAX_WORKERS=
+
+# This label is required — Grand Challenge uses it to detect that the container
+# implements the invoke API. Without it, the container defaults to exec mode.
+# Do not remove this label.
+LABEL org.grand-challenge.api-method="invoke"
+
+ENTRYPOINT ["python", "app.py"]

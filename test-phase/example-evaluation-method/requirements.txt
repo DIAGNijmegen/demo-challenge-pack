@@ -1,3 +1,0 @@
-SimpleITK
-numpy
-psutil
